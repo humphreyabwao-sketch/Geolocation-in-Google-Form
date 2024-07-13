@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Geocode Data</title>
+</head>
+<body>
+  <p>GeoCode Entered</p>
+  
+  <script>
+    (function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      }
+    })();
+
+    function showPosition(position) {
+      var latitude = position.coords.latitude;
+      var longitude = position.coords.longitude;
+      var coordinates = [latitude, longitude];
+      google.script.run.getLoc(coordinates);
+    }
+  </script>
+</body>
+</html>
