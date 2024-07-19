@@ -1,23 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Geocode Data</title>
+  <title>Geolocation Data Capture</title>
 </head>
 <body>
   <p>GeoCode Entered</p>
+  <button id="getLocationBtn">Get Current Location</button>
+  <p id="statusMessage"></p>
   
+  <!-- Manual Input Form -->
+  <div id="manualInput" style="display: none;">
+    <p>Enter Location Manually:</p>
+    <label for="latitude">Latitude:</label>
+    <input type="text" id="latitude" name="latitude">
+    <label for="longitude">Longitude:</label>
+    <input type="text" id="longitude" name="longitude">
+    <button id="submitManualInput">Submit</button>
+  </div>
+
   <script>
-    (function getLocation() {
+    document.getElementById('getLocationBtn').addEventListener('click', getLocation);
+
+    function getLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        document.getElementById('statusMessage').textContent = "Geolocation is not supported by this browser.";
       }
-    })();
+    }
 
     function showPosition(position) {
       var latitude = position.coords.latitude;
       var longitude = position.coords.longitude;
       var coordinates = [latitude, longitude];
-      google.script.run.getLoc(coordinates);
+      getPos(coordinates);
+      document.getElementById('statusMessage').textContent = "Location retrieved successfully!";
+    }
+
+    function showError(error) {
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          document.getElementById('statusMessage').textContent = "User denied the request for Geolocation. Please enable location permissions in your browser settings or enter your location manually.";
+          showManualInput();
+          break;
+        case error.POSITION_UNAVAILABLE:
+          document.getElementById('statusMessage').textContent = "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          document.getElementById('statusMessage').textContent = "The request to get user location timed out.";
+          break;
+        case error.UNKNOWN_ERROR:
+          document.getElementById('statusMessage').textContent = "An unknown error occurred.";
+          break;
+      }
+    }
+
+    function showManualInput() {
+      document.getElementById('manualInput').style.display = 'block';
+    }
+
+    document.getElementById('submitManualInput').addEventListener('click', function() {
+      var latitude = document.getElementById('latitude').value;
+      var longitude = document.getElementById('longitude').value;
+      if (latitude && longitude) {
+        var coordinates = [parseFloat(latitude), parseFloat(longitude)];
+        getPos(coordinates);
+        document.getElementById('statusMessage').textContent = "Manual location submitted successfully!";
+      } else {
+        document.getElementById('statusMessage').textContent = "Please enter both latitude and longitude.";
+      }
+    });
+
+    function getPos(value) {
+      google.script.run.getloc(value);
     }
   </script>
 </body>
